@@ -36,16 +36,16 @@
                  "140.205.32.12"
                ],
               "ttl": 106,
-              "origin_ttl": 120
+              "origin_ttl":120
              },
              {
               "host": "www.taobao.com",
-              "client_ip": "42.120.74.99",
+              "client_ip":"42.120.74.99",
                "ips": [
                  "140.205.16.92"
                ],
                "ttl": 46,
-               "origin_ttl": 60
+               "origin_ttl":60
              }
            ]
          }
@@ -55,18 +55,18 @@
 请求失败的响应示例：
 
     {
-      "code": "MissingArgument"
+      "code":"MissingArgument"
     }
 
 
 ## C库提供的HTTPDNS 接口说明
 ```
-- #define ALIYUN_SERVER_IP "203.107.1.33"   //阿里云httpDNS的服务器地址
-- #define ACCOUNT_ID 131709                 //account_id 帐号
+- #define ALIYUN_SERVER_IP "203.107.1.33"//阿里云httpDNS的服务器地址
+- #define ACCOUNT_ID 131709//account_id 帐号
         
         typedef struct 
         {
-            char  *h_name;            
+            char  *h_name;
             char  **h_ips;
             int32_t ips_num;
         }host_ips;
@@ -82,31 +82,27 @@
 - int32_t  httpdns_service_init();
 
 | 0个参数 |  类型  | 参数含义 | 数值说明 | 备注 |
-|:----:|:----:|:----:|:------:|:------:| 
-| 参数 |  | httpdns 使用curl初始化类型| CURL_GLOBAL_ALL |  | 
+|:----:|:----:|:----:|:------:|:------:|
+| 参数 |  | httpdns 使用curl初始化类型| CURL_GLOBAL_ALL |  |
 
 - int32_t httpdns_service_destroy()
 
 | 0个参数 |  类型  | 参数含义 | 数值说明 | 备注 |
-|:----:|:----:|:----:|:------:|:------:| 
-| 参数 |  | httpDNS使用的curl释放空间的线程 |    |    | 
+|:----:|:----:|:----:|:------:|:------:|
+| 参数 |  | httpdns使用的curl释放空间的线程 |    |    |
 
-* ips_list *httpdns_resolve_hosts(char *host,int32_t timeout)
-* 接口为异步接口，里面线程会解析IP列表
+- ips_list *httpdns_getips_by_host(char *host,int32_t timeout)
 
 | 2个参数 |  类型  | 参数含义 | 数值说明 | 备注 |
-|:----:|:----:|:----:|:------:|:------:| 
-| 参数1 | char*  | apigwrest.open.rokid.com,apigwws.open.rokid.com|所要请求的host|每次请求不能超过5个host | 
-| 参数2 | timeout  |每次请求超时的时长| | 
+|:----:|:----:|:----:|:------:|:------:|
+| 参数1 | char*  | apigwrest.open.rokid.com,apigwws.open.rokid.com|所要请求的host|每次请求不能超过5个host |
+| 参数2 | timeout  |每次请求超时的时长| |
 
-* ips_list *httpdns_getips_by_host()
-* 解析完成后，通过这个接口读出IP列表
+-ips_list *httpdns_getips_by_host()
 
 | 1个返回值 |  类型  | 参数含义 | 数值说明 | 备注 |
-|:----:|:----:|:----:|:------:|:------:| 
-| 返回值 | ips_list*  | 全局指针返回请求到的ip 列表|所要请求的host|每次请求不能超过5个host | 
-
-
+|:----:|:----:|:----:|:------:|:------:|
+| 返回值 | ips_list*  | 全局指针返回请求到的ip 列表|所要请求的host|每次请求不能超过5个host |
 
 
 #### 测试代码以及实例
