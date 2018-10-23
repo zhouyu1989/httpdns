@@ -9,7 +9,6 @@
     - 3：HTTPDNS 能够直接得到客户端的出口网关 IP，从而更准确地判断客户端地区和运营商，得到更精准的解析结果。
     - 4: HTTPDNS 支持全网域名的解析，包括在阿里云（万网）注册的域名，和其它第三方的域名。
 ## 使用HTTPDNS解析域名
- 
     - 使用HTTPDNS解析域名，请求示例：http://203.107.1.33/100000/d?host=www.aliyun.com
     - 解析多个域名：http://203.107.1.33/100000/resolve?host=www.aliyun.com,www.taobao.com
     - 指定多个来源IP：http://203.107.1.33/100000/resolve?host=www.aliyun.com&ip=42.120.74.99,218.16.248.58
@@ -26,7 +25,6 @@
 ## API响应格式
 
 -  解析结果JSON格式示例如下：
- 
          {
           "dns": [
              {
@@ -36,16 +34,16 @@
                  "140.205.32.12"
                ],
               "ttl": 106,
-              "origin_ttl":120
+              "origin_ttl": 120
              },
              {
               "host": "www.taobao.com",
-              "client_ip":"42.120.74.99",
+              "client_ip": "42.120.74.99",
                "ips": [
                  "140.205.16.92"
                ],
                "ttl": 46,
-               "origin_ttl":60
+               "origin_ttl": 60
              }
            ]
          }
@@ -55,29 +53,28 @@
 请求失败的响应示例：
 
     {
-      "code":"MissingArgument"
+      "code": "MissingArgument"
     }
 
 
 ## C库提供的HTTPDNS 接口说明
-```
-- #define ALIYUN_SERVER_IP "203.107.1.33"//阿里云httpDNS的服务器地址
-- #define ACCOUNT_ID 131709//account_id 帐号
-        
-        typedef struct 
+- #define ALIYUN_SERVER_IP "203.107.1.33"   //阿里云httpDNS的服务器地址
+- #define ACCOUNT_ID 131709                 //account_id 帐号
+
+        typedef struct
         {
             char  *h_name;
             char  **h_ips;
             int32_t ips_num;
         }host_ips;
-        
-    
-        typedef struct 
+
+        typedef struct
         {
             host_ips **host;
             int32_t host_num;
         }ips_list;
-```
+
+- typedef int (*httpdns_get_ips_callback)(ips_list *ips, void *ptr);
 
 - int32_t  httpdns_service_init();
 
@@ -98,18 +95,19 @@
 | 参数1 | char*  | apigwrest.open.rokid.com,apigwws.open.rokid.com|所要请求的host|每次请求不能超过5个host |
 | 参数2 | timeout  |每次请求超时的时长| |
 
--ips_list *httpdns_getips_by_host()
+-int httpdns_getips_by_host(httpdns_get_ips_callback callback, void *ptr);
 
 | 1个返回值 |  类型  | 参数含义 | 数值说明 | 备注 |
 |:----:|:----:|:----:|:------:|:------:|
-| 返回值 | ips_list*  | 全局指针返回请求到的ip 列表|所要请求的host|每次请求不能超过5个host |
+| 返回值 | int | -1 失败， 0 成功 |所要请求的host|每次请求不能超过5个host |
+| 参数 1 | httpdns_get_ips_callback |回调函数| |在回调里处理完成数据copy |
+| 参数 2 | ptr | |上层拷贝ips 的内存指针| 在回调函数使用，将数据拷贝到自己的空间|
 
 
-#### 测试代码以及实例
-* sample 目录下的测试文件httpdns_samplae.c
-* 测试方式,测试调用接口已经在测试代码写好，如果测试 host name 直接编译运行就行
-* make package/rokid/httpdns/clean -j1 V=s
-* make package/rokid/httpdns/install -j1 V=s
-* ./httpdns_samplae
-* 测试host是否可以正常解析ip：curl http://203.107.1.33/131709/resolve?host=apigwrest.open.rokid.com
+- 测试代码以及实例
+1. sample 目录下的测试文件httpdns_samplae.c
+2. 测试方式,测试调用接口已经在测试代码写好，如果测试 host name 直接编译运行就行
+3. make httpdns-rebuild
+4. ./httpdns_samplae
+5. 测试host是否可以正常解析ip：curl http://203.107.1.33/131709/resolve?host=apigwrest.open.rokid.com
 
