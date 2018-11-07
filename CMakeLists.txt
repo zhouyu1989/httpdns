@@ -6,7 +6,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I..   -Iinclude  -O2 -DADB_HOST=0 -Wall -Wn
 include_directories(include)
 aux_source_directory(src DIR_SRCS)
 add_library(httpdns SHARED ${DIR_SRCS})
-target_link_libraries(httpdns dl pthread curl m)
+target_link_libraries(httpdns dl pthread cjson curl m)
 
 install(TARGETS httpdns
 	RUNTIME DESTINATION bin

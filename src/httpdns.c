@@ -25,7 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "httpdns.h"
-#include "cJSON.h"
+#include "cjson/cJSON.h"
 
 #define HTTP_HEARDR_SIZE 1024
 #define RKLog(...) ({ \
