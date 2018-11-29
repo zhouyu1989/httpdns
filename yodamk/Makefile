@@ -28,7 +28,7 @@ define Package/httpdns
   SECTION:=libs
   CATEGORY:=rokid
   TITLE:=httpdns
-  DEPENDS:=+libstdcpp +curl +cJSON +libpthread
+  DEPENDS:=+libstdcpp +curl +cJSON +libpthread +rklog
   URL:=
 endef
 
