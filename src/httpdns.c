@@ -22,6 +22,7 @@ static pthread_mutex_t g_resolve_mutex;
 static char g_sn[SN_MAX_SIZE] = { 0 };
 static char g_device_type[TYPE_MAX_SIZE] = { 0 };
 static char g_resoleve_url[HTTP_HEARDR_SIZE] = { 0 };
+static httpdns_finished_notify g_notify_func = NULL;
 
 typedef enum {
     HTTPDNS_RESOLVE_END = 0,
@@ -247,7 +248,7 @@ static int32_t httpdns_request_ips(void)
     httpdns_build_url_format();
 
     curl_easy_setopt(curl, CURLOPT_URL, g_resoleve_url);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, g_resolve_timeout);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, g_resolve_timeout);
 
     curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, httpdns_header_callback);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpdns_response_callback);
@@ -276,7 +277,7 @@ static int32_t httpdns_request_ips(void)
     return 0;
 }
 
-static void *resolve_hosts_thread(void *host)
+static void *resolve_hosts_thread(void *userdata)
 {
     int32_t cnt = 0;
     int32_t ret = 0;
@@ -288,6 +289,12 @@ static void *resolve_hosts_thread(void *host)
         ret = httpdns_request_ips();
         if (0 == ret)
         {
+            RKLog("Celebrate httpdns Request OK cnt = %d !!!\n", cnt);
+            if (g_notify_func)
+            {
+                RKLog("Celebrate httpdns Request OK cnt = %d !!!\n", cnt);
+                g_notify_func(ret, userdata);
+            }
             resolve_status = HTTPDNS_RESOLVE_END;
             RKLog("Celebrate httpdns Request OK cnt = %d !!!\n", cnt);
             return NULL;
@@ -299,7 +306,12 @@ static void *resolve_hosts_thread(void *host)
         RKLog("Sorry httpdns Request failure cnt = %d !!!\n", cnt);
     }
 
+    if (g_notify_func)
+    {
+        g_notify_func(ret, userdata);
+    }
     resolve_status = HTTPDNS_RESOLVE_END;
+
     return NULL;
 }
 
@@ -322,7 +334,7 @@ int32_t httpdns_service_destroy(void)
     return 0;
 }
 
-int32_t httpdns_resolve_gslb(char *sn, char *device_type, int timeout)
+int32_t httpdns_resolve_gslb(char *sn, char *device_type, int timeout_ms, httpdns_finished_notify cb, void *userdata)
 {
     pthread_t thread;
     if (NULL == sn)
@@ -343,7 +355,7 @@ int32_t httpdns_resolve_gslb(char *sn, char *device_type, int timeout)
     }
 
     // default curl execte timeout  is 10 seconds
-    g_resolve_timeout = timeout > 0 ? timeout : 10;
+    g_resolve_timeout = timeout_ms > 0 ? timeout_ms : 5000;
 
     memset(g_sn, 0, SN_MAX_SIZE);
     memcpy(g_sn, sn, strlen(sn));
@@ -355,7 +367,14 @@ int32_t httpdns_resolve_gslb(char *sn, char *device_type, int timeout)
     }
     RKLog("g_sn= %s g_resolve_timeout =%d \n", g_sn, g_resolve_timeout);
 
-    if (pthread_create(&thread, NULL, resolve_hosts_thread, NULL))
+    g_notify_func = NULL;
+    if (NULL != cb)
+    {
+        RKLog("Celebrate httpdns Request OK  !!!\n");
+        g_notify_func = cb;
+    }
+
+    if (pthread_create(&thread, NULL, resolve_hosts_thread, userdata))
     {
         RKLog("pthread_create is faild \n");
         resolve_status = HTTPDNS_RESOLVE_END;

@@ -12,8 +12,8 @@
     功能：
     实现对公司设备入口流量的多维度调度策略，满足多云流量调度、灰度测试流量调度等多种需求
 ####  使用httpdns解析域名
-    - 使用httpdns解析域名，请求示例："https://gslb-dev.rokid.com/api/v1/?sn=0502031835000248&devicetype=0ABA0AA4F71949C4A3FB0418BF025113"
-   
+    - 使用httpdns解析域名，请求示例："https://gslb-dev.rokid.com/api/v1/?sn=dev_sn&devicetype=dev_tyep"
+
 ####  API响应格式
 
 -  解析结果JSON格式示例如下：
@@ -61,6 +61,14 @@
             int32_t host_num;
         }ips_list;
 
+- typedef int (*httpdns_finished_notify)(int status, void *userdata);
+
+| 2个返回值 |  类型  | 参数含义 | 数值说明 | 备注 |
+|:----:|:----:|:----:|:------:|:------:|
+| 返回值 | int | -1 失败， 0 成功 ||
+| 参数 1 | status |char* | 请求httpdns 服务结果| |  |
+| 参数 2 | userdata |void* |用户回调函数要处理的数据| |
+
 - int32_t  httpdns_service_init();
 
 | 0个参数 |  类型  | 参数含义 | 数值说明 | 备注 |
@@ -73,13 +81,15 @@
 |:----:|:----:|:----:|:------:|:------:|
 | 参数 |  | httpdns使用的curl释放空间的线程 |    |    |
 
-- int32_t httpdns_resolve_gslb(char *sn, char *device_type, int timeout);
+- int32_t httpdns_resolve_gslb(char *sn, char *device_type, int timeout_ms,httpdns_finished_notify cb,void *userdata);
 
 | 2个参数 |  类型  | 参数含义 | 数值说明 | 备注 |
 |:----:|:----:|:----:|:------:|:------:|
-| 参数1 | char*  |设备sn 号|||
+| 参数1 | sn  |设备sn 号|||
 | 参数2 | device_type  |设备deviceypeID| |
-| 参数3 | timeout  |请求超时时间| |
+| 参数3 | timeout_ms |请求超时时间(Millisecond| |
+| 参数4 | cb |用户回调处理的函数，通知用户请求dns完成| |
+| 参数5 | userdata |用户回调处理的数据| |
 -int httpdns_getips_by_host(char *host_name, char *ip);
 
 | 1个返回值 |  类型  | 参数含义 | 数值说明 | 备注 |

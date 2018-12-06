@@ -54,6 +54,14 @@ typedef struct
 } ips_list;
 
 /**
+ * @brief  resolve service finish notify user result
+ * @param status get service status
+ * @param userdata user data
+ * @return if 0 success otherwise -1 fail
+ */
+typedef int (*httpdns_finished_notify)(int status, void *userdata);
+
+/**
  * @brief init httpdns service source
  * @return if 0 success otherwise -1 fail
  */
@@ -77,10 +85,11 @@ int httpdns_getips_by_host(char *host_name, char *ip);
  * @brief start resolve dns form gslb
  * @param sn device serial number
  * @param device_type device type id
- * @param timeout request timeout time
+ * @param timeout request timeout time(Millisecond)
+ * @param userdata users need to process
  * @return if 0 success otherwise -1 fail
  */
-int32_t httpdns_resolve_gslb(char *sn, char *device_type, int timeout);
+int32_t httpdns_resolve_gslb(char *sn, char *device_type, int timeout_ms, httpdns_finished_notify cb, void *userdata);
 
 #ifdef __cplusplus
 }
